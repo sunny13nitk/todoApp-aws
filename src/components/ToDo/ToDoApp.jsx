@@ -37,7 +37,9 @@ export default function ToDoApp()
 
                         {/*Welcome Component  */}
                         <Route path='/welcome/:username' element={
-                            <WelcomeComponent />}
+                            <AuthenaticatedRoute>
+                                <WelcomeComponent />
+                            </AuthenaticatedRoute>}
                         />
 
                         {/*TO Dos Component  */}
