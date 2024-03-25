@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
-import { Route, Routes, useNavigate } from 'react-router-dom';
-import WelcomeComponent from '../Welcome/Welcome';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../security/AuthContext';
 import './Login.css';
 
 export default function LoginComponent()
@@ -11,8 +11,10 @@ export default function LoginComponent()
     const [username, setUserName] = useState('testUser');
     const [password, setPassword] = useState('');
 
-    const [showSuccessMessage, setShowSuccessMessage] = useState(false);
     const [showErrorMessage, setShowErrorMessage] = useState(false);
+
+    //Hook to AuthContext
+    const authContext = useAuth();
 
     //useNavigate Hook to Redirect to different component
     const navigate = useNavigate();
@@ -29,17 +31,12 @@ export default function LoginComponent()
 
     function handleSubmit()
     {
-        if (username === 'in28minutes' && password === 'dummy')
+        if (authContext.login(username, password))
         {
-            console.log("Success");
-            setShowSuccessMessage(true);
-            setShowErrorMessage(false);
             navigate(`/welcome/${username}`);
         }
         else
         {
-            console.log("Failed");
-            setShowSuccessMessage(false);
             setShowErrorMessage(true);
         }
     }
@@ -49,12 +46,8 @@ export default function LoginComponent()
     return (
         <div className="Login" >
 
-            <Routes>
-                <Route path='/welcome/:username' element={<WelcomeComponent />}></Route>
-            </Routes>
 
 
-            {showSuccessMessage && <div className='LoginSuccess' >Login Successful!</div>}
             {showErrorMessage && <div className='LoginFailed'>Login Failed! Please check your credentials.</div>}
 
             <div className="LoginForm">

@@ -1,8 +1,18 @@
+import { useAuth } from '../security/AuthContext';
+import './Footer.css';
+
 export default function FooterComponent()
 {
-    return(
-        <div className="footer">
-            <hr/>Footer
-        </div>
+    //const authContext = useContext(AuthContext);
+    //console.log(`Footer Component : ${authContext.number}`);
+
+    const authContext = useAuth();
+
+    return (
+        <footer className="footer">
+            <div className="container">
+                Your Footer
+            </div>
+        </footer>
     )
 }

@@ -14,11 +14,11 @@ export default function ToDoListComponent()
         ]
 
     return (
-        <div>
+        <div className="container">
             <h1>Things you would want to Do</h1>
 
             <div>
-                <table>
+                <table className="table">
                     <thead>
                         <tr>
                             <td>Id</td>
