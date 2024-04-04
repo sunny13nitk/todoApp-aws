@@ -1,29 +1,45 @@
 import { useEffect, useState } from "react";
-import { retrieveAllTodosforUserName } from "../api/ToDoApiService";
+import { deleteTodoforUserNameByIdApi, retrieveAllTodosforUserNameApi } from "../api/ToDoApiService";
 import { useAuth } from "../security/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export default function ToDoListComponent()
 {
-    const today = new Date();
-    const targetDate = new Date(today.getFullYear() + 1, today.getMonth(), today.getDay());
+    //const today = new Date();
+    //const targetDate = new Date(today.getFullYear() + 1, today.getMonth(), today.getDay());
 
     const authContext = useAuth();
     const userName = authContext.currUser;
 
     const [todos, setTodos] = useState([]);
+    const [message, setMessage] = useState();
+
+    //useNavigate Hook to Redirect to different component
+    const navigate = useNavigate();
 
     //Tell React that your component needs to do something after render.
-    useEffect(
-        () => refreshTodos()
-    )
+    useEffect(() => { refreshTodos() }, [])
 
     function refreshTodos()
     {
-        retrieveAllTodosforUserName(userName)
+        retrieveAllTodosforUserNameApi(userName)
             .then(response => 
             {
-                console.log(response)
-                setTodos(response.data._embedded.todoList)
+                //IF REsponse Payload is not Bound with Data - Set Blank ToDos - REinitialize
+                if (response.data._embedded === undefined)
+                {
+                    setMessage(
+                        <div>
+                            To Dos List is  <strong>empty</strong> for <strong>{userName}</strong>!
+                        </div>)
+                    setTodos([])
+                }
+                else
+                {
+                    //Set from REsponse Embedded Node
+                    setTodos(response.data._embedded.todoList)
+                }
+
             })
             .catch(error => console.log(error))
 
@@ -48,18 +64,51 @@ export default function ToDoListComponent()
 
     //     ]
 
+    function deleteTodo(userName, id)
+    {
+
+        deleteTodoforUserNameByIdApi(userName, id)
+            .then(
+                //1. display Message
+                //2. Update To Dos table
+                () => 
+                {
+                    setMessage(
+                        <div>
+                            Delete of todo with id = <strong>{id}</strong> is successful
+                        </div>)
+
+                    refreshTodos()
+
+
+                }
+            )
+            .catch(error => console.log(error))
+
+    }
+
+    function addNewTodo()
+    {
+        navigate(`/todo/-1`)
+    }
+
+    function updateTodo(id)
+    {
+        navigate(`/todo/${id}`);
+    }
     return (
         <div className="container">
             <h1>Things you would want to Do</h1>
-
-            <div>
+            {message && <div className="alert alert-warning ">{message}</div>}
+            <div style={{ margin: '10px', marginTop: '20px' }}>
                 <table className="table">
                     <thead>
                         <tr>
-                            <td>Id</td>
-                            <td>Description</td>
-                            <td>Is Done?</td>
-                            <td>Target Date</td>
+                            <th>Description</th>
+                            <th>Is Done?</th>
+                            <th>Target Date</th>
+                            <th>Delete</th>
+                            <th>Update</th>
                         </tr>
                     </thead>
 
@@ -68,11 +117,26 @@ export default function ToDoListComponent()
                             todos && todos.map(
                                 todo => (
                                     <tr key={todo.id}>
-                                        <td>{todo.id}</td>
                                         <td>{todo.description}</td>
                                         <td>{todo.done.toString()}</td>
                                         {/* <td>{todo.targetDate.toDateString()}</td> */}
                                         <td>{todo.targetDate.toString()}</td>
+                                        <td><button
+                                            type="button"
+                                            className="btn btn-warning"
+                                            onClick={() => deleteTodo(userName, todo.id)}
+                                        >
+                                            Delete
+                                        </button>
+                                        </td>
+                                        <td><button
+                                            type="button"
+                                            className="btn btn-success"
+                                            onClick={() => updateTodo(todo.id)}
+                                        >
+                                            Update
+                                        </button>
+                                        </td>
                                     </tr>
                                 )
                             )
@@ -81,6 +145,7 @@ export default function ToDoListComponent()
                 </table>
             </div>
 
+            <div className="btn btn-success m-5" onClick={addNewTodo}> Add New Todo</div>
         </div>
     )
 }

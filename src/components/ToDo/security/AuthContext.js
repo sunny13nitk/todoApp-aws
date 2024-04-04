@@ -16,7 +16,7 @@ export default function AuthProvider({ children })
     //Put some state in context
 
     const [isAuthenticated, setAuthenticated] = useState(false);
-    const [currUser, setCurrUser] = useState('');
+    const [currUser, setCurrUser] = useState(null);
 
     function login(username, password)
     {
@@ -29,14 +29,14 @@ export default function AuthProvider({ children })
         else
         {
             setAuthenticated(false);
-            setCurrUser('');
+            setCurrUser(null);
             return false;
         }
     }
 
     function logout()
     {
-        setCurrUser('');
+        setCurrUser(null);
         setAuthenticated(false);
     }
 

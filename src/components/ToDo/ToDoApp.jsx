@@ -1,11 +1,11 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
-import LoginComponent from "./Login/Login"
-import WelcomeComponent from "./Welcome/Welcome"
 import ErrorComponent from "./Error/Error"
-import ToDoListComponent from "./ToDoList/ToDoListComponent"
 import HeaderComponent from "./Generic/Header"
-import FooterComponent from "./Generic/Footer"
+import LoginComponent from "./Login/Login"
 import LogoutComponent from "./Logout/Logout"
+import ToDoComponent from "./ToDoDetails/ToDoComponent"
+import ToDoListComponent from "./ToDoList/ToDoListComponent"
+import WelcomeComponent from "./Welcome/Welcome"
 import AuthProvider, { useAuth } from "./security/AuthContext"
 
 function AuthenaticatedRoute({ children })
@@ -48,6 +48,13 @@ export default function ToDoApp()
                                 <ToDoListComponent />
                             </AuthenaticatedRoute>} />
 
+
+                        {/*TO Dos Component  */}
+                        < Route path='/todo/:id' element={
+                            <AuthenaticatedRoute>
+                                <ToDoComponent />
+                            </AuthenaticatedRoute>} />
+
                         {/*Logout Component  */}
                         <Route path='/logout' element={
                             <AuthenaticatedRoute>
@@ -56,7 +63,7 @@ export default function ToDoApp()
 
                         <Route path='*' element={<ErrorComponent />} />
                     </Routes>
-                    <FooterComponent />
+                    {/* <FooterComponent /> */}
                 </BrowserRouter>
             </AuthProvider>
         </div>
