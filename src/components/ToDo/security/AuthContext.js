@@ -1,4 +1,8 @@
 import { createContext, useContext, useState } from "react";
+import { executeBasicAuthentication } from "../api/HelloWorldApiService";
+import { HttpStatusCode } from "axios";
+import { apiClient } from "../api/ApiClient";
+
 
 //Create a Context
 export const AuthContext = createContext();
@@ -17,33 +21,62 @@ export default function AuthProvider({ children })
 
     const [isAuthenticated, setAuthenticated] = useState(false);
     const [currUser, setCurrUser] = useState(null);
+    const [token, setToken] = useState(null);
 
-    function login(username, password)
+    async function login(username, password)
     {
-        if (username === 'sunny' && password === 'dummy')
+
+        const baToken = 'Basic ' + window.btoa(username + ":" + password)
+
+        try
         {
-            setAuthenticated(true);
-            setCurrUser(username);
-            return true;
-        }
-        else
+            const response = await executeBasicAuthentication(baToken)
+            if (response.status === HttpStatusCode.Ok)
+            {
+                setAuthenticated(true);
+                setCurrUser(username);
+                setToken(baToken);
+
+                apiClient.interceptors.request.use(
+                    (config) =>
+                    {
+                        console.log('intercepting and adding a token')
+                        config.headers.Authorization = baToken
+                        return config
+                    }
+                )
+
+                return true;
+            }
+            else
+            {
+
+                logout();
+                return false;
+            }
+        } catch (error)
         {
-            setAuthenticated(false);
-            setCurrUser(null);
+            logout();
+            console.log('Error: ' + error)
             return false;
         }
+
+
+
     }
+
 
     function logout()
     {
         setCurrUser(null);
         setAuthenticated(false);
+        setToken(null);
     }
 
-    // setInterval(() => setNumber(number + 1), 10000);
+    // setInterval(() => setNumber(number + 1), 10000); 
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, currUser, login, logout }}>
+        <AuthContext.Provider value={{ isAuthenticated, currUser, login, logout, token }}>
             {children}
         </AuthContext.Provider>
     )
